@@ -1,0 +1,16 @@
+{
+  "name": "appsalon_mevn_backend",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Backend para AppSalon en MEVN",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "author": "Romina Giselle",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}
