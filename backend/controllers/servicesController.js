@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 import { services } from '../data/beautyServices.js'
 import Services from '../models/Services.js'
+import { validateObjectId, handleNotFoundError } from '../utills/index.js'
 
 const createService = async (req, res) => {
     if(Object.values(req.body).includes('')) {
@@ -28,23 +29,12 @@ const getServices = (req, res) => {
 const getServiceById = async (req, res) => {
     const { id } = req.params
     // validar un objeto id
-    if(!mongoose.Types.ObjectId.isValid(id)) {
-        const error = new Error('Id no es valido.')
-
-        return res.status(400).json({
-            msg: error.message
-        })
-    }
+    if(validateObjectId(id, res)) return
     //Validar que existe
     const service = await Services.findById(id) 
     if(!service) {
-        const error = new Error('El servicio no existe.')
-
-        return res.status(404).json({
-            msg: error.message
-        })
+        return handleNotFoundError('El servicio no existe.', res)
     }
-
     //Mostrar el servicio
     res.json(service)
 }
@@ -52,21 +42,11 @@ const getServiceById = async (req, res) => {
 const updateService = async (req, res) => {
     const { id } = req.params
     // validar un objeto id
-    if(!mongoose.Types.ObjectId.isValid(id)) {
-        const error = new Error('Id no es valido.')
-
-        return res.status(400).json({
-            msg: error.message
-        })
-    }
+    if(validateObjectId(id, res)) return
     //Validar que existe
     const service = await Services.findById(id) 
     if(!service) {
-        const error = new Error('El servicio no existe.')
-
-        return res.status(404).json({
-            msg: error.message
-        })
+        return handleNotFoundError('El servicio no existe.', res)
     }
 // Escrbibimos en el objeto los valores nuevos 
     service.name = req.body.name || service.name
@@ -82,9 +62,30 @@ const updateService = async (req, res) => {
     }
 }
 
+const deleteService = async (req, res) => {
+    const { id } = req.params
+    // validar un objeto id
+    if(validateObjectId(id, res)) return
+    //Validar que existe
+    const service = await Services.findById(id) 
+    if(!service) {
+        return handleNotFoundError('El servicio no existe.', res)
+    }
+
+    try {
+         await service.deleteOne()
+         res.json({
+            msg:'El servicio se elimino correctamente.'
+         })
+    } catch(error) {
+        console.log(error)
+    }
+}
+
 export {
     createService,
     getServices,
     getServiceById,
-    updateService
+    updateService,
+    deleteService
 }
