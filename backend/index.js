@@ -1,5 +1,6 @@
 import express from 'express'
 import dotenv from 'dotenv'
+import cors from 'cors'
 import { db } from './config/db.js'
 import servicesRoutes from './routes/servicesRoutes.js'
 
@@ -14,6 +15,22 @@ app.use(express.json())
 
 // Conectar a DB
 db()
+
+//Confirgurar CORS
+const whitelist = [process.env.FRONTEND_URL, undefined]
+
+const corsOptions = {
+    origin: function(origin, callback) {
+        if(whitelist.includes(origin)) {
+            //permite
+            callback(null, true)
+        } else {
+            // no permite
+            callback(new Error('Error de CORS'))
+        }
+    }
+}
+app.use(cors(corsOptions))
 
 // Definir una ruta
 app.use('/api/services', servicesRoutes)
