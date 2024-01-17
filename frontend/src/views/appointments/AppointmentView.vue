@@ -1,8 +1,15 @@
 <script setup>
+import { ref } from 'vue'
+import VueTailwindDatepicker from 'vue-tailwind-datepicker'
 import SelectedService from '../../components/SelectedService.vue'
 import { useAppointmentsStore } from '@/stores/appointments';
 
 const appointments = useAppointmentsStore()
+
+const formatter = ref ({
+    date: 'DD/MM/YYYY',
+    month: 'MMM'
+})
 </script>
 
 <template>
@@ -12,8 +19,27 @@ const appointments = useAppointmentsStore()
 
         <h3 class="text-3xl font-extrabold text-white mt-5">Servicios</h3>
 
-        <div class="grid gap-5 mt-5">
+        <p v-if="appointments.noServicesSelected" class="text-white text-2xl mt-5 text-center"> No hay servicios seleccionados.</p>
+        <div v-else class="grid gap-5 mt-5">
             <SelectedService v-for="service in appointments.services" :key="service._id" :service="service" />
+            <p class="text-right text-white text-2xl">
+                Total a pagar:
+                <span class="font-black"> €{{ appointments.totalAmount }}</span>
+            </p>
+        </div>
+
+        <div class="space-y-8" v-if="!appointments.noServicesSelected">
+            <h3 class="text-3xl font-extrabold text-white"> Fecha y hora</h3>
+
+            <div class="lg:flex gap-5 items-start">
+                <div class="w-full lg:w-96 bg-white justify-center flex rounded-lg">
+                    <VueTailwindDatepicker i18n="es" as-single no-input :formatter="formatter" v-model="appointments.date"/>
+                </div>
+                <div class="flex-1 grid grid-cols-1 xl:grid-cols-2 gap-5 mt-10 lg:mt-0">
+                    <button class="block text-blue-500 rounded-lg text-xl font-black p-2" v-for="hour in appointments.hours" :key="hour.id" @click="appointments.time = hour" :class="appointments.time === hour ? 'bg-blue-500 text-white' : 'bg-white'"> {{ hour }}</button>
+                </div>
+
+            </div>
         </div>
     </main>
 </template>
