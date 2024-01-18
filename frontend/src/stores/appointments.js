@@ -33,6 +33,15 @@ const time = ref('')
     }
   }
 
+  function createAppointment() {
+    const appointment = {
+        services: services.value.map( service => service._id),
+        date: date.value,
+        time: time.value
+    }
+    console.log(appointment)
+  }
+
   const isServiceSelected = computed(() => {
     return (id) => services.value.some((service) => service._id === id);
   });
@@ -43,14 +52,21 @@ const time = ref('')
     return services.value.reduce((total, service) => total + service.price, 0)
   })
 
+  const isValidReservation = computed(() => {
+    return services.value.length && date.value.length && time.value.length
+  })
+
+
   return {
     services,
     date,
     hours,
     time,
     onServiceSelected,
+    createAppointment,
     isServiceSelected,
     noServicesSelected,
-    totalAmount
+    totalAmount,
+    isValidReservation
   };
 });
