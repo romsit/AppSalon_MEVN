@@ -27,10 +27,10 @@ const handleSubtmit = async ({ password_confirm, ...formData }) => {
 
         <FormKit id="registerForm" type="form" :actions="false" incomplete-message="No se pudo enviar, revisa las notificaciones"
             @submit="handleSubtmit">
-            <FormKit type="text" label="Nombre" name="name" placeholder="Tu Nombre" validation="required|length:3"
+            <FormKit type="text" label="Nombre" name="name" placeholder="Nombre" validation="required|length:3"
                 :validation-messages="{ required: 'El nombre es obligatorio', length: 'El nombre es muy corto' }">
             </FormKit>
-            <FormKit type="email" label="Email" name="email" placeholder="Tu correo" validation="required|email"
+            <FormKit type="email" label="Email" name="email" placeholder="Email de registro" validation="required|email"
                 :validation-messages="{ required: 'El correo es obligatorio', email: 'El correo no es valido.' }">
             </FormKit>
             <FormKit type="password" label="Contrasena" name="password" placeholder="Contrasena - Min 8 caracteres"
