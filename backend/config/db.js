@@ -6,7 +6,7 @@ export const db = async () => {
         const url = `${db.connection.host}:${db.connection.port}`
         console.log('Conexion exitosa:', url)
     } catch (error) {
-        console.log('Error: ${error.message')
+        console.log('Error: ${error.message}')
         process.exit(1)
     }
 }
