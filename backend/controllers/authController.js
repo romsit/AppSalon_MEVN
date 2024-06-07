@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 import { sendEmailVerification } from "../emails/authEmailService.js";
+import { generateJWT } from "../utills/index.js";
 
 const register = async (req, res) => {
   // Valida todos los campos
@@ -81,10 +82,10 @@ const login = async (req,res) => {
   } 
   // Comprobar el password
   if(await user.checkPassword(password)) {
+    const token = generateJWT(user._id)
     res.json({
-      msg: 'Usuario autenticado'
+      token
     })
-
   } else {
     const error = new Error('Contrasena incorrecta')
     return res.status(401).json({msg: error.message})

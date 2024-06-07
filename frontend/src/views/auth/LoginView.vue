@@ -6,8 +6,8 @@ const toast = inject('toast')
 
 const handleSubtmit = async (formData) => {
     try {
-        const { data } = await AuthApi.login(formData)
-        console.log(data)
+        const { data: { token } } = await AuthApi.login(formData)
+        localStorage.setItem('AUTH_TOKEN', token)
         // toast.open({
         //     message: data.msg, type: 'success'
         // })
