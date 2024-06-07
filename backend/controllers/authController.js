@@ -92,7 +92,8 @@ const login = async (req,res) => {
   }
 }
 const user = async (req, res) => {
-console.log('user')
+  const { user } = req
+  res.json(user)
 }
 
 export { register, verifyAccount, login , user};
