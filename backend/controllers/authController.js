@@ -91,5 +91,8 @@ const login = async (req,res) => {
     return res.status(401).json({msg: error.message})
   }
 }
+const user = async (req, res) => {
+console.log('user')
+}
 
-export { register, verifyAccount, login };
+export { register, verifyAccount, login , user};
