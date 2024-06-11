@@ -52,10 +52,17 @@ export const useAppointmentsStore = defineStore("appointments", () => {
         message: data.msg,
         type: 'success',
       });
+      clearAppointmentData()
       router.push({name: 'my-appointments'})
     } catch (error) {
       console.log(error);
     }
+  }
+
+  function clearAppointmentData() {
+    services.value = []
+    date.value = ''
+    time.value = ''
   }
 
   const isServiceSelected = computed(() => {
