@@ -1,5 +1,9 @@
 <script setup>
 import { displayDate } from '../helpers/date'
+import { useAppointmentsStore } from '@/stores/appointments';
+
+const appointments = useAppointmentsStore()
+
 defineProps({
     appointment: {
         type: Object
@@ -23,7 +27,7 @@ defineProps({
             <RouterLink :to="{name: 'edit-appointment', params: {id: appointment._id}}" class="bg-slate-600 rounded-lg p-3 text-white text-sm uppercase font-black flex-1 md:flex-none">
                 Editar cita
             </RouterLink>
-            <button class="bg-red-600 rounded-lg p-3 text-white text-sm uppercase font-black flex-1 md:flex-none">
+            <button @click="appointments.cancelAppointment(appointment._id)" class="bg-red-600 rounded-lg p-3 text-white text-sm uppercase font-black flex-1 md:flex-none">
                 Cancelar cita
             </button>
         </div>
