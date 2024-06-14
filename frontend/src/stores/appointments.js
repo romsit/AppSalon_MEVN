@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 import { useRouter } from "vue-router";
 import AppointmentAPI from "@/api/AppointmentAPI";
 import { convertToISO, convertToDDMMYYYY } from "@/helpers/date.js";
+import { useUserStore } from "./user";
 
 export const useAppointmentsStore = defineStore("appointments", () => {
   const appointmentId = ref("");
@@ -14,6 +15,7 @@ export const useAppointmentsStore = defineStore("appointments", () => {
 
   const toast = inject("toast");
   const router = useRouter();
+  const user = useUserStore()
 
   onMounted(() => {
     const startHour = 10;
@@ -103,6 +105,8 @@ export const useAppointmentsStore = defineStore("appointments", () => {
     }
     
     clearAppointmentData();
+    user.getUserAppointments()
+
     router.push({ name: "my-appointments" });
   }
 
@@ -147,6 +151,7 @@ export const useAppointmentsStore = defineStore("appointments", () => {
     setSelectedAppointment,
     onServiceSelected,
     saveAppointment,
+    clearAppointmentData,
     isServiceSelected,
     noServicesSelected,
     totalAmount,
