@@ -51,7 +51,7 @@ const disableDate = (date) => {
                 </div>
             </div>
             <div v-if="appointments.isValidReservation" class="flex justify-end">
-                <button @click="appointments.createAppointment" type="button" class="w-full md:w-auto bg-blue-500 p-3 rounded-lg uppercase font-black text-white">Confirmar Reservacion</button>
+                <button @click="appointments.saveAppointment" type="button" class="w-full md:w-auto bg-blue-500 p-3 rounded-lg uppercase font-black text-white">Confirmar Reservacion</button>
             </div>
     </div>
 </main></template>

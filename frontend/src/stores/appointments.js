@@ -5,16 +5,15 @@ import AppointmentAPI from "@/api/AppointmentAPI";
 import { convertToISO, convertToDDMMYYYY } from "@/helpers/date.js";
 
 export const useAppointmentsStore = defineStore("appointments", () => {
-
-  const appointmentId = ref('')
+  const appointmentId = ref("");
   const services = ref([]);
   const date = ref("");
   const hours = ref([]);
   const time = ref("");
-  const appointmentsByDate = ref([])
+  const appointmentsByDate = ref([]);
 
   const toast = inject("toast");
-  const router = useRouter()
+  const router = useRouter();
 
   onMounted(() => {
     const startHour = 10;
@@ -24,28 +23,32 @@ export const useAppointmentsStore = defineStore("appointments", () => {
     }
   });
 
-  watch(date, async() => {
-    time.value = ''
-    if(date.value === '') return
+  watch(date, async () => {
+    time.value = "";
+    if (date.value === "") return;
     // Obtenemos las citas
-    const { data } = await AppointmentAPI.getByDate(date.value)
+    const { data } = await AppointmentAPI.getByDate(date.value);
 
-    if(appointmentId.value) {
-      appointmentsByDate.value = data.filter( appointment => appointment._id !== appointmentId.value)
-      time.value = data.filter( appointment => appointment._id === appointmentId.value)[0].time
+    if (appointmentId.value) {
+      appointmentsByDate.value = data.filter(
+        (appointment) => appointment._id !== appointmentId.value
+      );
+      time.value = data.filter(
+        (appointment) => appointment._id === appointmentId.value
+      )[0].time;
     } else {
-        appointmentsByDate.value = data
+      appointmentsByDate.value = data;
     }
-  })
+  });
 
   function setSelectedAppointment(appointment) {
-    console.log(appointment)
-    services.value = appointment.services
-    date.value = convertToDDMMYYYY(appointment.date)
-    time.value = appointment.time
-    appointmentId.value = appointment._id
+    console.log(appointment);
+    services.value = appointment.services;
+    date.value = convertToDDMMYYYY(appointment.date);
+    time.value = appointment.time;
+    appointmentId.value = appointment._id;
 
-    console.log(appointmentId.value)
+    console.log(appointmentId.value);
   }
 
   function onServiceSelected(service) {
@@ -66,30 +69,48 @@ export const useAppointmentsStore = defineStore("appointments", () => {
     }
   }
 
-  async function createAppointment() {
+  async function saveAppointment() {
     const appointment = {
       services: services.value.map((service) => service._id),
       date: convertToISO(date.value),
       time: time.value,
       totalAmount: totalAmount.value,
     };
-    try {
-      const { data } = await AppointmentAPI.create(appointment);
-      toast.open({
-        message: data.msg,
-        type: 'success',
-      });
-      clearAppointmentData()
-      router.push({name: 'my-appointments'})
-    } catch (error) {
-      console.log(error);
+
+    if (appointmentId.value) {
+      try {
+        const { data } = await AppointmentAPI.update(
+          appointmentId.value,
+          appointment
+        );
+        toast.open({
+          message: data.msg,
+          type: "success",
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      try {
+        const { data } = await AppointmentAPI.create(appointment);
+        toast.open({
+          message: data.msg,
+          type: "success",
+        });
+      } catch (error) {
+        console.log(error);
+      }
     }
+    
+    clearAppointmentData();
+    router.push({ name: "my-appointments" });
   }
 
   function clearAppointmentData() {
-    services.value = []
-    date.value = ''
-    time.value = ''
+    appointmentId.value = ''
+    services.value = [];
+    date.value = "";
+    time.value = "";
   }
 
   const isServiceSelected = computed(() => {
@@ -107,14 +128,16 @@ export const useAppointmentsStore = defineStore("appointments", () => {
   });
 
   const isDateSelected = computed(() => {
-    return date.value ? true : false
-  })
+    return date.value ? true : false;
+  });
 
   const disableTime = computed(() => {
-    return(hour) => {
-      return appointmentsByDate.value.find(appointment => appointment.time === hour)
-    }
-  })
+    return (hour) => {
+      return appointmentsByDate.value.find(
+        (appointment) => appointment.time === hour
+      );
+    };
+  });
 
   return {
     services,
@@ -123,12 +146,12 @@ export const useAppointmentsStore = defineStore("appointments", () => {
     time,
     setSelectedAppointment,
     onServiceSelected,
-    createAppointment,
+    saveAppointment,
     isServiceSelected,
     noServicesSelected,
     totalAmount,
     isValidReservation,
     isDateSelected,
-    disableTime
+    disableTime,
   };
 });
