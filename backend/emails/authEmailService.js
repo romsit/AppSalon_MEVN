@@ -10,7 +10,7 @@ export async function sendEmailVerification({ name, email, token}) {
 
     // Enviar email
     const info = await transporter.sendMail({
-        from: 'AppSalon',
+        from: 'AppSalon <cuentas@appsalon.com>',
         to: email,
         subject: 'AppSalon - Confirma tu cuenta',
         html: `<p>Hola: ${name}, confirma tu cuenta en AppSalon</p>
