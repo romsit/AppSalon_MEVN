@@ -1,6 +1,6 @@
 import User from "../models/User.js";
-import { sendEmailVerification } from "../emails/authEmailService.js";
-import { generateJWT } from "../utills/index.js";
+import { sendEmailVerification, sendEmailPasswordReset } from "../emails/authEmailService.js";
+import { generateJWT, uniqueId } from "../utills/index.js";
 
 const register = async (req, res) => {
   // Valida todos los campos
@@ -47,53 +47,96 @@ const register = async (req, res) => {
 };
 
 const verifyAccount = async (req, res) => {
-    const { token } = req.params 
+  const { token } = req.params;
 
-    const user = await User.findOne({token})
-    if(!user) {
-      const error = new Error('Hubo un error, token no valido')
-      return res.status(401).json({msg: error.message})
-    }    
-
-    // Si el token es valido, confirmar la cuenta
-    try {
-      user.verified =  true
-      user.token = ''
-      await user.save()
-      res.json({msg: 'Usuario confirmado correctamente.'})
-    } catch(error) {
-      console.log(error)
-    }
-    
-}
-
-const login = async (req,res) => {
-  const { email, password} = req.body
-  // Revisar que el usuario exista
-  const user = await User.findOne({email})
-  if(!user) {
-    const error = new Error('El usuario no existe')
-    return res.status(401).json({msg: error.message})
-  } 
-  // Revisar si el usuario confirmo su cuenta
-  if(!user.verified) {
-    const error = new Error('Tu cuenta no ha sido verificada aun.')
-    return res.status(401).json({msg: error.message})
-  } 
-  // Comprobar el password
-  if(await user.checkPassword(password)) {
-    const token = generateJWT(user._id)
-    res.json({
-      token
-    })
-  } else {
-    const error = new Error('Contrasena incorrecta')
-    return res.status(401).json({msg: error.message})
+  const user = await User.findOne({ token });
+  if (!user) {
+    const error = new Error("Hubo un error, token no valido");
+    return res.status(401).json({ msg: error.message });
   }
-}
-const user = async (req, res) => {
-  const { user } = req
-  res.json(user)
+
+  // Si el token es valido, confirmar la cuenta
+  try {
+    user.verified = true;
+    user.token = "";
+    await user.save();
+    res.json({ msg: "Usuario confirmado correctamente." });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const login = async (req, res) => {
+  const { email, password } = req.body;
+  // Revisar que el usuario exista
+  const user = await User.findOne({ email });
+  if (!user) {
+    const error = new Error("El usuario no existe");
+    return res.status(401).json({ msg: error.message });
+  }
+  // Revisar si el usuario confirmo su cuenta
+  if (!user.verified) {
+    const error = new Error("Tu cuenta no ha sido verificada aun.");
+    return res.status(401).json({ msg: error.message });
+  }
+  // Comprobar el password
+  if (await user.checkPassword(password)) {
+    const token = generateJWT(user._id);
+    res.json({
+      token,
+    });
+  } else {
+    const error = new Error("Contrasena incorrecta");
+    return res.status(401).json({ msg: error.message });
+  }
+};
+
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  // Comprobar si existe el usuario
+  const user = await User.findOne({ email });
+  if (!user) {
+    const error = new Error("El usuario no existe");
+    return res.status(404).json({ msg: error.message });
+  }
+
+  try {
+    user.token = uniqueId();
+    const result = await user.save()
+
+    sendEmailPasswordReset({
+      name: result.name,
+      email: result.email,
+      token: result.token
+    })
+
+    res.json({
+      msg: 'Hemos enviado un correo con las instrucciones.'
+    })
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const verifyPasswordResetToken = async (req, res) => {
+  const { token } = req.params
+
+  const isValidToken = await User.findOne({token})
+  if(!isValidToken) {
+    const error = new Error('Hubo un error, token no válido.')
+    res.status(400).json({msg: error.message})
+  }
+  res.json({msg: 'Token válido'})
 }
 
-export { register, verifyAccount, login , user};
+const updatePassword = async (req, res) => {
+
+}
+
+const user = async (req, res) => {
+  const { user } = req;
+  res.json(user);
+};
+
+export { register, verifyAccount, login, forgotPassword, verifyPasswordResetToken, updatePassword, user };
