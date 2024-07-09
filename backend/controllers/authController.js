@@ -1,5 +1,8 @@
 import User from "../models/User.js";
-import { sendEmailVerification, sendEmailPasswordReset } from "../emails/authEmailService.js";
+import {
+  sendEmailVerification,
+  sendEmailPasswordReset,
+} from "../emails/authEmailService.js";
 import { generateJWT, uniqueId } from "../utills/index.js";
 
 const register = async (req, res) => {
@@ -103,40 +106,66 @@ const forgotPassword = async (req, res) => {
 
   try {
     user.token = uniqueId();
-    const result = await user.save()
+    const result = await user.save();
 
     sendEmailPasswordReset({
       name: result.name,
       email: result.email,
-      token: result.token
-    })
+      token: result.token,
+    });
 
     res.json({
-      msg: 'Hemos enviado un correo con las instrucciones.'
-    })
+      msg: "Hemos enviado un correo con las instrucciones.",
+    });
   } catch (error) {
     console.log(error);
   }
 };
 
 const verifyPasswordResetToken = async (req, res) => {
-  const { token } = req.params
+  const { token } = req.params;
 
-  const isValidToken = await User.findOne({token})
-  if(!isValidToken) {
-    const error = new Error('Hubo un error, token no válido.')
-    res.status(400).json({msg: error.message})
+  const isValidToken = await User.findOne({ token });
+  if (!isValidToken) {
+    const error = new Error("Hubo un error, token no válido.");
+    return res.status(400).json({ msg: error.message });
   }
-  res.json({msg: 'Token válido'})
-}
+  res.json({ msg: "Token válido" });
+};
 
 const updatePassword = async (req, res) => {
+  const { token } = req.params
+  const user = await User.findOne({ token });
 
-}
+  if (!user) {
+    const error = new Error("Hubo un error, token no válido.");
+    return res.status(400).json({ msg: error.message });
+  }
+  const { password } = req.body
+  
+  try {
+    user.token = ''
+    user.password = password
+    await user.save()
+    res.json({
+      msg: 'Contraseña modificado correctamente'
+    })
+  } catch (error) {
+    console.log(error)
+  }
+};
 
 const user = async (req, res) => {
   const { user } = req;
   res.json(user);
 };
 
-export { register, verifyAccount, login, forgotPassword, verifyPasswordResetToken, updatePassword, user };
+export {
+  register,
+  verifyAccount,
+  login,
+  forgotPassword,
+  verifyPasswordResetToken,
+  updatePassword,
+  user,
+};
