@@ -1,4 +1,5 @@
 <script setup>
+import AdminAppointment from '../../components/AdminAppointment.vue'
 import { useUserStore } from '../../stores/user'
 
 const user = useUserStore()
@@ -14,6 +15,9 @@ const user = useUserStore()
 
         <div v-else>
             <p v-if="user.noAppointments" class="text-white text-2xl text-center mt-5"> No tienes citas</p>
+            <div v-else class="grid grid-cols-1 gap-5 my-10">
+                <AdminAppointment v-for="appointment in user.userAppointments" :key="appointment._id" :appointment="appointment"/>
+            </div>
         </div>
     </div>
 </template>
