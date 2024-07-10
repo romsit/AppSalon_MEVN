@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import AppointmentsLayout from "../views/appointments/AppointmentsLayout.vue";
-import AuthAPI from '../api/AuthAPI'
+import AuthAPI from "../api/AuthAPI";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -10,6 +10,19 @@ const router = createRouter({
       path: "/",
       name: "home",
       component: HomeView,
+    },
+    {
+      path: "/admin",
+      name: "admin",
+      component: () => import("../views/admin/AdminLayout.vue"),
+      meta: { requiresAdmin: true },
+      children: [
+        {
+          path: "",
+          name: "admin-appointments",
+          component: () => import("../views/admin/AppointmentsView.vue"),
+        },
+      ],
     },
     {
       path: "/reservaciones",
@@ -42,8 +55,9 @@ const router = createRouter({
           ],
         },
         {
-          path: ':id/editar',
-          component: () => import('../views/appointments/EditAppointmentLayout.vue'),
+          path: ":id/editar",
+          component: () =>
+            import("../views/appointments/EditAppointmentLayout.vue"),
           children: [
             {
               path: "",
@@ -57,7 +71,7 @@ const router = createRouter({
                 import("../views/appointments/AppointmentView.vue"),
             },
           ],
-        }
+        },
       ],
     },
     {
@@ -89,7 +103,7 @@ const router = createRouter({
           path: "olvide-password/:token",
           name: "new-password",
           component: () => import("../views/auth/NewPasswordView.vue"),
-        }
+        },
       ],
     },
   ],
@@ -99,14 +113,28 @@ router.beforeEach(async (to, from, next) => {
   const requiresAuth = to.matched.some((url) => url.meta.requiresAuth);
   if (requiresAuth) {
     try {
-      const { data } = await AuthAPI.auth() 
-      if(data.admin) {
-        next('/admin')
+      const { data } = await AuthAPI.auth();
+      if (data.admin) {
+        next({ name: "admin" });
       } else {
-        next()
+        next();
       }
     } catch (error) {
-      next({name:'login'})
+      next({ name: "login" });
+    }
+  } else {
+    next();
+  }
+});
+
+router.beforeEach(async (to, from, next) => {
+  const requiresAdmin = to.matched.some((url) => url.meta.requiresAdmin);
+  if (requiresAdmin) {
+    try {
+      await AuthAPI.admin();
+      next();
+    } catch (error) {
+      next({ name: "login" });
     }
   } else {
     next();
