@@ -99,8 +99,12 @@ router.beforeEach(async (to, from, next) => {
   const requiresAuth = to.matched.some((url) => url.meta.requiresAuth);
   if (requiresAuth) {
     try {
-      await AuthAPI.auth() 
-      next()
+      const { data } = await AuthAPI.auth() 
+      if(data.admin) {
+        next('/admin')
+      } else {
+        next()
+      }
     } catch (error) {
       next({name:'login'})
     }
